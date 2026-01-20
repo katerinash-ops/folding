@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phone Bundle Premium</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            /* --- ТЕМНЫЙ ПРЕМИУМ ФОН --- */
+            background: radial-gradient(circle at 50% 0%, #434343, #000000);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; user-select: none; overflow-x: hidden;
+            color: white; /* Весь текст белый */
+        }
+
+        .header { text-align: center; margin-bottom: 25px; margin-top: 20px; z-index: 2; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin: 0 0 5px 0; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .header p { font-size: 12px; color: rgba(255,255,255,0.5); margin: 0; letter-spacing: 1.5px; text-transform: uppercase; }
+
+        /* --- КАРТОЧКА (ТЕМНОЕ СТЕКЛО) --- */
+        .card {
+            background: rgba(30, 30, 30, 0.6); /* Темная прозрачность */
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            width: 320px; padding: 35px 20px;
+            border-radius: 40px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center; display: flex; flex-direction: column;
+            align-items: center; margin-bottom: 25px; position: relative;
+            cursor: grab; transition: transform 0.2s;
+            overflow: hidden;
+        }
+        .card:active { cursor: grabbing; }
+
+        /* АНИМАЦИИ */
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } 100% { transform: translateX(0); } }
+        .shake-anim { animation: shake 0.4s ease-in-out; }
+        @keyframes popSuccess { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(52, 199, 89, 0.5); } 100% { transform: scale(1); } }
+        .success-anim { animation: popSuccess 0.4s ease-in-out; border: 1px solid #34C759; box-shadow: 0 0 20px rgba(52, 199, 89, 0.2); }
+
+        .image-container { position: relative; width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 25px; height: 280px; }
+        
+        .phone-image {
+            width: 220px; height: 100%; object-fit: contain;
+            /* Тень для объема на темном фоне */
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)); 
+            pointer-events: none; will-change: transform, opacity;
+        }
+
+        /* Tinder style */
+        .fly-right { animation: flyRight 0.4s forwards ease-in; }
+        @keyframes flyRight { to { transform: translateX(150%) rotate(15deg); opacity: 0; } }
+        .fly-left { animation: flyLeft 0.4s forwards ease-in; }
+        @keyframes flyLeft { to { transform: translateX(-150%) rotate(-15deg); opacity: 0; } }
+        .fade-in { animation: fadeIn 0.4s forwards ease-out; }
+        @keyframes fadeIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .arrow-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: bold; font-size: 18px; backdrop-filter: blur(5px);
+            transition: all 0.2s; position: absolute; z-index: 10;
+        }
+        .prev { left: 0px; } .next { right: 0px; }
+        .arrow-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .card h2 { font-size: 26px; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .color-name { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; font-weight: 500; }
+
+        .actions { display: flex; gap: 20px; margin-bottom: 30px; }
+        .btn-circle {
+            width: 65px; height: 65px; border-radius: 50%; border: none; 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px;
+            transition: transform 0.2s ease, background 0.2s;
+            color: white;
+        }
+        .btn-circle:active { transform: scale(0.9); }
+        .btn-cancel:hover { background: rgba(255, 59, 48, 0.2); border-color: #FF3B30; color: #FF3B30; }
+        .btn-confirm:hover { background: rgba(52, 199, 89, 0.2); border-color: #34C759; color: #34C759; }
+
+        /* --- СИМКИ (Dark Mode) --- */
+        .sim-section { width: 320px; margin-bottom: 30px; }
+        .section-title { font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 1px; font-weight: 700; margin-bottom: 15px; text-align: center; }
+        .sim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        
+        .sim-card {
+            background: rgba(255,255,255,0.05); border-radius: 18px; padding: 12px 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer; transition: all 0.2s; backdrop-filter: blur(5px);
+        }
+        .sim-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.1); }
+        
+        /* Активная симка светится */
+        .sim-card.active { 
+            border-color: #FFCC00; 
+            background: rgba(255, 204, 0, 0.15); 
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+        }
+
+        .sim-icon-yellow {
+            width: 24px; height: 32px; background: #FFCC00; border-radius: 4px; margin-bottom: 8px; position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 80% 100%, 0 100%);
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.4); /* Свечение чипа */
+        }
+        .sim-icon-yellow::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 16px; height: 18px; border: 1px solid rgba(0,0,0,0.2); border-radius: 2px;
+            background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.1) 50%), linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 6px, 6px 100%;
+        }
+        .sim-name { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); }
+
+        .insight-container { width: 320px; display: flex; justify-content: center; padding-bottom: 40px; }
+        .insight-btn {
+            background: #FFCC00; color: #000; border: none; padding: 16px 50px; border-radius: 30px; font-size: 15px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2); transition: transform 0.2s; z-index: 50; display: flex; align-items: center; gap: 10px;
+        }
+        .insight-btn:active { transform: scale(0.95); }
+
+        .car-wrapper { position: fixed; top: 50%; left: -350px; transform: translateY(-50%); z-index: 9999; width: 320px; pointer-events: none; }
+        @keyframes driveMiddle { 0% { left: -350px; } 50% { left: 50%; margin-left: -160px; transform: translateY(-50%) scale(1.1); } 100% { left: 120vw; } }
+        .car-animating { animation: driveMiddle 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Phone Bundle</h1>
+        <p>Premium Selection</p>
+    </div>
+
+    <div class="card" id="swipeCard">
+        <div class="image-container">
+            <button class="arrow-btn prev" onclick="changePhone(-1)">‹</button>
+            <img id="phoneImg" src="" alt="iPhone" class="phone-image">
+            <button class="arrow-btn next" onclick="changePhone(1)">›</button>
+        </div>
+        
+        <div id="textContent">
+            <h2 id="phoneTitle">Galaxy Z Fold5</h2>
+            <div class="color-name" id="colorName">Phantom Black</div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-circle btn-cancel" onclick="rejectAction()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <button class="btn-circle btn-confirm" onclick="confirmAction()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </button>
+    </div>
+
+    <div class="sim-section">
+        <div class="section-title">Select SIM Card</div>
+        <div class="sim-grid">
+            <div class="sim-card active" onclick="selectSim(this)"><div class="sim-icon-yellow"></div><div class="sim-name">SIM 1</div></div>
+            <div class="sim-card" onclick="selectSim(this)"><div class="sim-icon-yellow"></div><div class="sim-name">SIM 2</div></div>
+            <div class="sim-card" onclick="selectSim(this)"><div class="sim-icon-yellow"></div><div class="sim-name">SIM 3</div></div>
+            <div class="sim-card" onclick="selectSim(this)"><div class="sim-icon-yellow"></div><div class="sim-name">SIM 4</div></div>
+            <div class="sim-card" onclick="selectSim(this)"><div class="sim-icon-yellow"></div><div class="sim-name">SIM 5</div></div>
+            <div class="sim-card" onclick="selectSim(this)"><div class="sim-icon-yellow" style="background: #FFD700;"></div><div class="sim-name">eSIM</div></div>
+        </div>
+    </div>
+
+    <div class="insight-container">
+        <button class="insight-btn" onclick="startDelivery()">Get Insights 🚚</button>
+    </div>
+
+    <div id="deliveryCar" class="car-wrapper">
+        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <circle cx="40" cy="100" r="15" fill="#222" stroke="#444" stroke-width="3"/>
+            <circle cx="150" cy="100" r="15" fill="#222" stroke="#444" stroke-width="3"/>
+            <path d="M10 85 H180 V35 H50 L30 55 H10 V85 Z" fill="#FFCC00" stroke="#000" stroke-width="2"/>
+            <rect x="50" y="20" width="130" height="65" rx="5" fill="#FFCC00" stroke="#000" stroke-width="2"/>
+            <path d="M35 55 L50 35 H70 V55 H35 Z" fill="#222" stroke="#000" stroke-width="2"/>
+            <path d="M10 65 H5" stroke="#FFF" stroke-width="3" stroke-linecap="round" filter="url(#glow)"/>
+            <rect x="80" y="55" width="20" height="4" rx="2" fill="#000"/>
+        </svg>
+    </div>
+
+    <script>
+        // НОВЫЕ ССЫЛКИ НА ANDROID FOLD
+        const phones = [
+            { file: 'https://i.ibb.co/4n5Y11K7/5128-CK53-DQL-removebg-preview.png', model: 'Galaxy Z Fold5', color: 'Phantom Black' },
+            { file: 'https://i.ibb.co/BHbyPB3D/Fold-2-Brown-removebg-preview.png', model: 'Galaxy Z Fold2', color: 'Mystic Bronze' },
+            { file: 'https://i.ibb.co/8D48q7br/Galaxy-Z-Fold6-PNG-Cutout-thumb-removebg-preview.png', model: 'Galaxy Z Fold6', color: 'Icy Blue' },
+            { file: 'https://i.ibb.co/TDFPzkgb/THUMB-002-product-galaxy-zfold4-graygreen-back115-removebg-preview.png', model: 'Galaxy Z Fold4', color: 'Graygreen' }
+        ];
+
+        let currentIndex = 0; 
+        const cardElement = document.getElementById('swipeCard');
+        const imgElement = document.getElementById('phoneImg');
+        const titleElement = document.getElementById('phoneTitle');
+        const colorElement = document.getElementById('colorName');
+
+        imgElement.src = phones[0].file;
+
+        function changePhone(direction) {
+            if (direction > 0) { imgElement.classList.add('fly-right'); } else { imgElement.classList.add('fly-left'); }
+
+            setTimeout(() => {
+                currentIndex = currentIndex + direction;
+                if (currentIndex >= phones.length) currentIndex = 0;
+                else if (currentIndex < 0) currentIndex = phones.length - 1;
+
+                imgElement.src = phones[currentIndex].file;
+                titleElement.innerText = phones[currentIndex].model;
+                colorElement.innerText = phones[currentIndex].color;
+                
+                imgElement.className = 'phone-image fade-in';
+                setTimeout(() => { imgElement.classList.remove('fade-in'); }, 400);
+            }, 300);
+        }
+
+        function rejectAction() {
+            cardElement.classList.add('shake-anim');
+            setTimeout(() => { cardElement.classList.remove('shake-anim'); }, 400);
+        }
+
+        function confirmAction() {
+            cardElement.classList.add('success-anim');
+            const oldTitle = titleElement.innerText;
+            titleElement.innerText = "Saved!";
+            titleElement.style.color = "#34C759";
+            setTimeout(() => { 
+                cardElement.classList.remove('success-anim'); 
+                titleElement.innerText = oldTitle;
+                titleElement.style.color = "#fff";
+            }, 1500);
+        }
+
+        let touchStartX = 0; let touchEndX = 0;
+        cardElement.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
+        cardElement.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
+        cardElement.addEventListener('mousedown', e => { touchStartX = e.screenX; });
+        cardElement.addEventListener('mouseup', e => { touchEndX = e.screenX; handleSwipe(); });
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) changePhone(1);
+            if (touchEndX > touchStartX + 50) changePhone(-1);
+        }
+
+        function selectSim(element) {
+            document.querySelectorAll('.sim-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+        }
+        function startDelivery() {
+            const car = document.getElementById('deliveryCar');
+            car.classList.remove('car-animating'); void car.offsetWidth; car.classList.add('car-animating');
+        }
+    </script>
+
+</body>
+</html>
